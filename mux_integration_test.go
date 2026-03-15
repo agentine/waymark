@@ -21,17 +21,17 @@ func TestFullRequestLifecycle(t *testing.T) {
 
 	// Register routes.
 	r.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("home"))
+		_, _ = w.Write([]byte("home"))
 	})
 	r.HandleFunc("/users/{id:[0-9]+}", func(w http.ResponseWriter, req *http.Request) {
 		vars := Vars(req)
 		route := CurrentRoute(req)
 		name := route.GetName()
-		w.Write([]byte(fmt.Sprintf("user:%s:route:%s", vars["id"], name)))
+		_, _ = w.Write([]byte(fmt.Sprintf("user:%s:route:%s", vars["id"], name)))
 	}).Methods("GET").Name("getUser")
 
 	r.HandleFunc("/users/{id:[0-9]+}", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("updated"))
+		_, _ = w.Write([]byte("updated"))
 	}).Methods("PUT")
 
 	// Test GET with regex var.
@@ -89,7 +89,7 @@ func TestSubrouterWithMiddleware(t *testing.T) {
 	})
 	api.HandleFunc("/data", func(w http.ResponseWriter, req *http.Request) {
 		order = append(order, "handler")
-		w.Write([]byte("data"))
+		_, _ = w.Write([]byte("data"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -107,7 +107,7 @@ func TestNestedSubrouters(t *testing.T) {
 	api := r.PathPrefix("/api").Subrouter()
 	v1 := api.PathPrefix("/v1").Subrouter()
 	v1.HandleFunc("/items", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("items-v1"))
+		_, _ = w.Write([]byte("items-v1"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -122,7 +122,7 @@ func TestSubrouterPathVars(t *testing.T) {
 	sub := r.PathPrefix("/orgs/{orgID}").Subrouter()
 	sub.HandleFunc("/teams/{teamID}", func(w http.ResponseWriter, req *http.Request) {
 		vars := Vars(req)
-		w.Write([]byte(vars["orgID"] + ":" + vars["teamID"]))
+		_, _ = w.Write([]byte(vars["orgID"] + ":" + vars["teamID"]))
 	})
 
 	rr := httptest.NewRecorder()
@@ -136,10 +136,10 @@ func TestOverlappingRoutes(t *testing.T) {
 	r := NewRouter()
 	// More specific route first.
 	r.HandleFunc("/users/new", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("new"))
+		_, _ = w.Write([]byte("new"))
 	})
 	r.HandleFunc("/users/{id}", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("get:" + Vars(req)["id"]))
+		_, _ = w.Write([]byte("get:" + Vars(req)["id"]))
 	})
 
 	// /users/new should match the first route.
@@ -161,7 +161,7 @@ func TestManyVariables(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/{a}/{b}/{c}/{d}/{e}", func(w http.ResponseWriter, req *http.Request) {
 		v := Vars(req)
-		w.Write([]byte(v["a"] + v["b"] + v["c"] + v["d"] + v["e"]))
+		_, _ = w.Write([]byte(v["a"] + v["b"] + v["c"] + v["d"] + v["e"]))
 	})
 
 	rr := httptest.NewRecorder()
@@ -174,7 +174,7 @@ func TestManyVariables(t *testing.T) {
 func TestSpecialCharsInVars(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/files/{name}", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte(Vars(req)["name"]))
+		_, _ = w.Write([]byte(Vars(req)["name"]))
 	})
 
 	rr := httptest.NewRecorder()
@@ -187,7 +187,7 @@ func TestSpecialCharsInVars(t *testing.T) {
 func TestSchemeMatching(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/secure", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	}).Schemes("https")
 
 	// No TLS → should not match.
@@ -210,7 +210,7 @@ func TestSchemeMatching(t *testing.T) {
 func TestHostRouting(t *testing.T) {
 	r := NewRouter()
 	r.Host("{subdomain}.example.com").Path("/").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("sub:" + Vars(req)["subdomain"]))
+		_, _ = w.Write([]byte("sub:" + Vars(req)["subdomain"]))
 	})
 
 	req := httptest.NewRequest("GET", "/", nil)
@@ -234,7 +234,7 @@ func TestHostRouting(t *testing.T) {
 func TestHostWithPort(t *testing.T) {
 	r := NewRouter()
 	r.Host("example.com").Path("/").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 
 	req := httptest.NewRequest("GET", "/", nil)
@@ -249,7 +249,7 @@ func TestHostWithPort(t *testing.T) {
 func TestEmptyPath(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("root"))
+		_, _ = w.Write([]byte("root"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -263,7 +263,7 @@ func TestUseEncodedPath(t *testing.T) {
 	r := NewRouter()
 	r.UseEncodedPath()
 	r.HandleFunc("/a%2Fb", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("encoded"))
+		_, _ = w.Write([]byte("encoded"))
 	})
 
 	rr := httptest.NewRecorder()

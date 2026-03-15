@@ -12,7 +12,6 @@ type patternSegment struct {
 	literal  string // literal text (empty if variable)
 	variable string // variable name (empty if literal)
 	regex    string // regex constraint for the variable
-	greedy   bool   // greedy match (for path prefix patterns)
 }
 
 // compiledPattern is a compiled path template ready for matching.

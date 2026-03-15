@@ -10,7 +10,7 @@ func TestBasicRouting(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/users/{id}", func(w http.ResponseWriter, req *http.Request) {
 		vars := Vars(req)
-		w.Write([]byte("user:" + vars["id"]))
+		_, _ = w.Write([]byte("user:" + vars["id"]))
 	})
 
 	req := httptest.NewRequest("GET", "/users/42", nil)
@@ -28,10 +28,10 @@ func TestBasicRouting(t *testing.T) {
 func TestMultipleRoutes(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/users", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("list"))
+		_, _ = w.Write([]byte("list"))
 	})
 	r.HandleFunc("/users/{id}", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("get:" + Vars(req)["id"]))
+		_, _ = w.Write([]byte("get:" + Vars(req)["id"]))
 	})
 
 	tests := []struct {
@@ -53,10 +53,10 @@ func TestMultipleRoutes(t *testing.T) {
 func TestMethodRouting(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/api", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("GET"))
+		_, _ = w.Write([]byte("GET"))
 	}).Methods("GET")
 	r.HandleFunc("/api", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("POST"))
+		_, _ = w.Write([]byte("POST"))
 	}).Methods("POST")
 
 	// GET
@@ -89,7 +89,7 @@ func TestCustom404(t *testing.T) {
 	r := NewRouter()
 	r.NotFoundHandler(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("custom 404"))
+		_, _ = w.Write([]byte("custom 404"))
 	}))
 
 	rr := httptest.NewRecorder()
@@ -115,7 +115,7 @@ func TestCustom405(t *testing.T) {
 	r.HandleFunc("/api", func(w http.ResponseWriter, req *http.Request) {}).Methods("GET")
 	r.MethodNotAllowedHandler(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("custom 405"))
+		_, _ = w.Write([]byte("custom 405"))
 	}))
 
 	rr := httptest.NewRecorder()
@@ -129,7 +129,7 @@ func TestSubrouter(t *testing.T) {
 	r := NewRouter()
 	sub := r.PathPrefix("/api").Subrouter()
 	sub.HandleFunc("/users", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("users"))
+		_, _ = w.Write([]byte("users"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -143,7 +143,7 @@ func TestStrictSlash(t *testing.T) {
 	r := NewRouter()
 	r.StrictSlash(true)
 	r.HandleFunc("/users/", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -160,7 +160,7 @@ func TestStrictSlash(t *testing.T) {
 func TestPathClean(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/api/users", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -174,7 +174,7 @@ func TestSkipClean(t *testing.T) {
 	r := NewRouter()
 	r.SkipClean(true)
 	r.HandleFunc("/api/users", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 
 	// With skip clean, the dirty path won't match.
@@ -234,7 +234,7 @@ func TestCurrentRouteInHandler(t *testing.T) {
 func TestRegexConstraints(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/users/{id:[0-9]+}", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("user:" + Vars(req)["id"]))
+		_, _ = w.Write([]byte("user:" + Vars(req)["id"]))
 	})
 
 	// Valid ID.
@@ -256,7 +256,7 @@ func TestRouterMethods(t *testing.T) {
 	r := NewRouter()
 	route := r.Methods("GET", "POST")
 	route.Path("/api").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 
 	rr := httptest.NewRecorder()
@@ -269,7 +269,7 @@ func TestRouterMethods(t *testing.T) {
 func TestRouterHost(t *testing.T) {
 	r := NewRouter()
 	r.Host("{subdomain}.example.com").Path("/api").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("sub:" + Vars(req)["subdomain"]))
+		_, _ = w.Write([]byte("sub:" + Vars(req)["subdomain"]))
 	})
 
 	req := httptest.NewRequest("GET", "/api", nil)

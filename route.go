@@ -335,9 +335,6 @@ func (r *Route) match(req *http.Request) (map[string]string, bool, bool) {
 				break
 			}
 		}
-		if !methodMatch {
-			// Method doesn't match, but path might — used for 405 detection.
-		}
 	}
 
 	// Check path.

@@ -2,6 +2,7 @@ package waymark
 
 import (
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 )
@@ -55,7 +56,7 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				if prefixOK {
 					// Strip matched prefix and dispatch to subrouter.
 					subReq := req.Clone(req.Context())
-					subReq.URL = &(*req.URL)
+					subReq.URL = cloneURL(req.URL)
 					subReq.URL.Path = strings.TrimPrefix(req.URL.Path, prefix)
 					if subReq.URL.Path == "" {
 						subReq.URL.Path = "/"
@@ -99,7 +100,7 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 
 		altReq := req.Clone(req.Context())
-		altReq.URL = &(*req.URL)
+		altReq.URL = cloneURL(req.URL)
 		altReq.URL.Path = altPath
 
 		for _, route := range router.routes {
@@ -261,6 +262,12 @@ func (router *Router) getNamedRoutes() map[string]*Route {
 		router.namedRoutes = make(map[string]*Route)
 	}
 	return router.namedRoutes
+}
+
+// cloneURL makes a shallow copy of a URL.
+func cloneURL(u *url.URL) *url.URL {
+	u2 := *u
+	return &u2
 }
 
 // cleanPath returns the canonical path for p, eliminating . and .. elements.

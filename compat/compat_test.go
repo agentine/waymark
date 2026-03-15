@@ -14,11 +14,11 @@ func TestDropInCompatibility(t *testing.T) {
 
 	r.HandleFunc("/articles/{category}/{id:[0-9]+}", func(w http.ResponseWriter, req *http.Request) {
 		vars := Vars(req)
-		w.Write([]byte(vars["category"] + ":" + vars["id"]))
+		_, _ = w.Write([]byte(vars["category"] + ":" + vars["id"]))
 	}).Methods("GET").Name("article")
 
 	r.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("home"))
+		_, _ = w.Write([]byte("home"))
 	})
 
 	// Test basic routing.
@@ -58,7 +58,7 @@ func TestCompatCurrentRoute(t *testing.T) {
 func TestCompatMiddleware(t *testing.T) {
 	r := NewRouter()
 	r.HandleFunc("/api", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	}).Methods("GET")
 
 	r.Use(CORSMethodMiddleware(r))
@@ -92,7 +92,7 @@ func TestCompatSubrouter(t *testing.T) {
 	r := NewRouter()
 	sub := r.PathPrefix("/api").Subrouter()
 	sub.HandleFunc("/users", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("users"))
+		_, _ = w.Write([]byte("users"))
 	})
 
 	rr := httptest.NewRecorder()
