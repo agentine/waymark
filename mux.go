@@ -32,12 +32,14 @@ func NewRouter() *Router {
 
 // ServeHTTP dispatches the handler registered in the matched route.
 func (router *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	// When useEncodedPath is set, use the raw path for matching.
+	if router.useEncodedPath && req.URL.RawPath != "" {
+		req.URL.Path = req.URL.RawPath
+	}
+
 	// Clean the path unless skipClean is set.
-	if !router.skipClean {
-		p := req.URL.Path
-		if !router.useEncodedPath {
-			p = cleanPath(p)
-		}
+	if !router.skipClean && !router.useEncodedPath {
+		p := cleanPath(req.URL.Path)
 		if p != req.URL.Path {
 			req.URL.Path = p
 		}
@@ -121,12 +123,9 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if handler != nil {
 		// Merge with any existing vars (e.g. from parent subrouter).
-		existingVars := Vars(req)
-		if existingVars != nil {
-			for k, v := range existingVars {
-				if _, ok := matchedVars[k]; !ok {
-					matchedVars[k] = v
-				}
+		for k, v := range Vars(req) {
+			if _, ok := matchedVars[k]; !ok {
+				matchedVars[k] = v
 			}
 		}
 		// Set context values.

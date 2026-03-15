@@ -270,8 +270,8 @@ func TestUseEncodedPath(t *testing.T) {
 	req := httptest.NewRequest("GET", "/a%2Fb", nil)
 	r.ServeHTTP(rr, req)
 	// The encoded path should be preserved and matched.
-	if rr.Code == http.StatusOK && rr.Body.String() == "encoded" {
-		// pass
+	if rr.Code != http.StatusOK || rr.Body.String() != "encoded" {
+		t.Errorf("encoded path: status=%d, body=%q", rr.Code, rr.Body.String())
 	}
 }
 
