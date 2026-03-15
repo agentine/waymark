@@ -119,6 +119,15 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if handler != nil {
+		// Merge with any existing vars (e.g. from parent subrouter).
+		existingVars := Vars(req)
+		if existingVars != nil {
+			for k, v := range existingVars {
+				if _, ok := matchedVars[k]; !ok {
+					matchedVars[k] = v
+				}
+			}
+		}
 		// Set context values.
 		req = setVars(req, matchedVars)
 		req = setCurrentRoute(req, matchedRoute)
